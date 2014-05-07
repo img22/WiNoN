@@ -1,5 +1,4 @@
 #!/bin/bash
-
 source /etc/default/winon 2> /dev/null
 if [[ $? -ne 0 ]]; then
   echo "Error reading /etc/default/winon"
@@ -84,19 +83,19 @@ function start_sanitization_vm
   DRIVE=/dev/$(ls -al /dev/disk/by-label/winon | grep -oE "../../.+" | grep -oE [a-zA-Z]+)
 
   kvm \
-    -sdl \
     -daemonize \
     --name ScrubberVM \
-    -net nic -net none \
     -m $mem \
     -vga std \
     -drive file=$DRIVE,if=virtio \
-    -virtfs local,path=$SANITIZATION_PATH,security_model=passthrough,writeout=immediate,mount_tag=opt,readonly \
+    -boot order=c \
+    -net nic -net none \
+    -virtfs local,path=$SANITIZATION_PATH,security_model=passthrough,writeout=immediate,mount_tag=opt \
     -virtfs local,path=$SANITIZATION_INPUT,security_model=passthrough,writeout=immediate,mount_tag=sani \
     $drives >> /tmp/sanivm 2>&1
   echo $! > $PIDS/sanivm
 
-  python2 $WHOME/.winon/sani_monitor.py &
+  #python2 $WHOME/.winon/sani_monitor.py &
   echo $! > $PIDS/sanimon
 
   echo "SaniVM started"
@@ -113,12 +112,6 @@ function start
   if [[ $? -ne 0 ]]; then
     exit 1
   fi
-
-  for dir in $PIDS $PIDS/vms $WPATH/input $WPATH/output $WPATH/nym; do
-    if [[ ! -e $dir ]]; then
-      mkdir -p $dir
-    fi
-  done
 
   echo "Host configuration: Starting"
   set_ip
@@ -138,22 +131,12 @@ function stop
   fi
 
   set_root $0 stop
-  if [[ $? -ne 0 ]]; then
+  if [[ $? ]]; then
     exit 1
   fi
 
   IF=$(cat $WPATH/started)
   rm $WPATH/started
-
-  if [[ -e $PIDS/sanivm ]]; then
-    kill -KILL $(cat $PIDS/sanivm)
-    rm $PIDS/sanivm
-  fi
-
-  if [[ -e $PIDS/sanimon ]]; then
-    kill -KILL $(cat $PIDS/sanimon)
-    rm $PIDS/sanimon
-  fi
 }
 
 case "$1" in

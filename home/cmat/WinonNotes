@@ -1,0 +1,15 @@
+Winon Notes
+~~~~~~~~~~~
+
+SANITIZATION_PATH=$WHOME/.winon/default/sanitization
+SANITIZATION_INPUT=$WHOME/.winon/input
+SANITIZATION_OUTPUT=$WHOME/.winon/output
+found under /etc/default/winon
+
+In host.sh
+	- kvm with virtfs means shared folder
+
+Options for integrating:
+	- Run cmat in the host and listen to the shared folder
+	- OR start cmat in a separate vm and all files from the drives
+	- OR start cmat in a separate vm and enable add from the drives

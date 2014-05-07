@@ -1,0 +1,27 @@
+TODO
+
++ File Name, file size relative width
++ Only display individual X for images, display exiftool error
++ Make window bigger at load
++ Upgrade PDF resolution
+
++ Remove Personal Content
+	> Automatic:
+		- Cancel reverts image back to red marks..................................................X
+		- Commit writes to the file...............................................................X
+		- After print clear the new metadata
+	> One by one:
+		- Cancel changes cursor back to normal....................................................X
+		- Commit writes and reloads the file......................................................X
+	> Settings:
+		- Setting settings should not override covered data but should override marked data.......X
+		- Label order.............................................................................X
+		- Regex for address.......................................................................
+
+
+
++ Writing to details log for major activiteis:
+	> When file is loading
+	> When change is commited
+	> When metadata headers read
+	....
