@@ -927,4 +927,5 @@ class Ui_MainWindow(object):
             Cleans up/ stops directory listening
         """
         self.dirMonitor.stop()
+        self.filesList.cleanUp()
 

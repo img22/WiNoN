@@ -326,3 +326,8 @@ class CQTreeView(QtGui.QTreeWidget):
 		"""
 		fobj = self.allFiles[path]
 		self.allFiles[path].selfCopy()
+
+	def cleanUp(self):
+		for key in self.allFiles.keys():
+			af = self.allFiles[key]
+			af.selfRemove()

@@ -7,3 +7,5 @@ python-poppler-qt4(http://code.google.com/p/python-poppler-qt4/downloads/list)
 pdfrw(https://code.google.com/p/pdfrw/downloads/list)
 exiftool(http://www.sno.phy.queensu.ca/~phil/exiftool/install.html#Unix)
 mutagen(https://bitbucket.org/lazka/mutagen/downloads)
+
+CMAT repo https://github.com/img22/cmat.git

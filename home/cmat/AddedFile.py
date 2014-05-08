@@ -2,6 +2,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QObject
 from MAT import mat
 from MAT import strippers
+import tempfile
 import logging
 import cv2
 from math import sqrt
@@ -35,7 +36,7 @@ class AddedFile(QObject):
 		# create a new file to work with, new file has -cmat tag
 		if isfile:
 			self.fileName = AddedFile.newName(str(name), "-cmat")
-			self.filePath = AddedFile.newName(str(path), "-cmat")
+			self.filePath = AddedFile.tempName(self.fileName)
 			logging.debug('Out Path is ' + path)
 		else:
 			self.fileName = name
@@ -91,7 +92,7 @@ class AddedFile(QObject):
 			
 			metaDict = self.matObject.get_meta()
 
-			if len(metaDict.keys()) == 0:
+			if metaDict is None or len(metaDict.keys()) == 0:
 				self.hasMetadata = False
 			else:
 				for key in metaDict.keys():
@@ -139,9 +140,10 @@ class AddedFile(QObject):
 		logging.debug("Refreshing metadata..")
 		
 		metaDict = self.matObject.get_meta()
-		for key in metaDict.keys():
-			logging.debug("Found metadata header: " + key)
-			self.allMetadata.append([key, metaDict[key]])
+		if metaDict is not None:
+			for key in metaDict.keys():
+				logging.debug("Found metadata header: " + key)
+				self.allMetadata.append([key, metaDict[key]])
 		
 		if len(self.allMetadata) == 0:
 			self.hasMetadata = False
@@ -173,7 +175,7 @@ class AddedFile(QObject):
 
 
 	def checkState(self):
-		if ((not self.hasMetadata) and self.personalData.isClean()):
+		if ((not self.hasMetadata) and (self.personalData is not None) and self.personalData.isClean()):
 			logging.debug("File is clean! Emitting clean signal...")
 			self.fileCleaned.emit(self.filePath)
 			logging.debug("Writing to output...")
@@ -195,6 +197,7 @@ class AddedFile(QObject):
 		self.makeCopy(self.filePath, self.outputPath + '/' + self.origName)
 
 	def selfRemove(self):
+		logging.debug("Removing " + self.filePath)
 		os.remove(self.filePath)
 
 
@@ -207,7 +210,9 @@ class AddedFile(QObject):
 				self.autoPersonalCleaned = True
 		elif self.type in ["Jpeg", "Png"]:
 			success = self.personalData.pdata.blurAll()
-		self.personalData.pdata.doCommit()
+
+		if self.personalData is not None:
+			self.personalData.pdata.doCommit()
 
 		self.refreshMetadata()
 		self.removeAllMeta()
@@ -220,8 +225,14 @@ class AddedFile(QObject):
 		origName = str(origName)
 		lastDot = string.rfind(origName, ".")
 		if lastDot == -1:
-			lastDot = origName.length
+			lastDot = len(origName)
 		return QtCore.QString(origName[:lastDot] + ext + origName[lastDot:])
+
+	@staticmethod
+	def tempName(fileName):
+		tempDir = tempfile.mkdtemp()
+		return QtCore.QString(tempDir + '/' + fileName)
+
 
 	@staticmethod
 	def changeExt(fname, newExt):
